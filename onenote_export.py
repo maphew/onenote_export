@@ -16,6 +16,8 @@ import yaml
 from pathvalidate import sanitize_filename
 from requests_oauthlib import OAuth2Session
 
+debug = True
+
 graph_url = 'https://graph.microsoft.com/v1.0'
 authority_url = 'https://login.microsoftonline.com/common'
 scopes = ['Notes.Read', 'Notes.Read.All']
@@ -105,6 +107,8 @@ def download_attachments(graph_client, content, out_dir, indent=0):
         # data-fullres-src-type="image/png" />
         parser = MyHTMLParser()
         parser.feed(tag_match[0])
+        if debug:
+            print(f"parser.feed tag_match: {tag_match[0]}")
         props = parser.attrs
         image_url = props.get('data-fullres-src', props['src'])
         image_type = props.get('data-fullres-src-type', props['data-src-type']).split("/")[-1]
