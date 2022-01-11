@@ -16,7 +16,7 @@ import yaml
 from pathvalidate import sanitize_filename
 from requests_oauthlib import OAuth2Session
 
-debug = True
+debug = False
 
 graph_url = 'https://graph.microsoft.com/v1.0'
 authority_url = 'https://login.microsoftonline.com/common'
@@ -108,10 +108,16 @@ def download_attachments(graph_client, content, out_dir, indent=0):
         parser = MyHTMLParser()
         parser.feed(tag_match[0])
         if debug:
-            print(f"parser.feed tag_match: {tag_match[0]}")
+            print(f"parser.feed tag_match: '''{tag_match[0]}''' ")
         props = parser.attrs
-        image_url = props.get('data-fullres-src', props['src'])
-        image_type = props.get('data-fullres-src-type', props['data-src-type']).split("/")[-1]
+        
+        try:
+            image_url = props.get('data-fullres-src', props['src'])
+            image_type = props.get('data-fullres-src-type', props['data-src-type']).split("/")[-1]
+        except KeyError as e:
+            print(f"*** Error parsing image's source. You likely need to edit the source page to fix the problem")
+            print(f"     {e}")
+
         file_name = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.' + image_type
         req = get(graph_client, image_url, indent=indent)
         if req is None:
